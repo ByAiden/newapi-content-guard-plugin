@@ -1,0 +1,1002 @@
+{
+  "cases": [
+    {
+      "name": "block: CJK keyword split by full-width spaces and zero-width characters",
+      "hook": "ingress",
+      "args": [
+        {
+          "stage": "ingress",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "policy",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "cjk",
+                "pattern": "违禁词"
+              },
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "custom",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "word",
+                "pattern": "forbidden topic"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "***",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "body": {
+            "model": "gpt-4o-mini",
+            "stream": false,
+            "messages": [
+              {
+                "role": "user",
+                "content": "请解释 违　禁​词 的含义"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "action": "reject",
+        "code": "content_guard.policy",
+        "message": "The request contains content that is not allowed",
+        "ruleId": "cjk",
+        "findings": [
+          {
+            "rule": "cjk",
+            "category": "policy",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "block: keyword ignores letter case",
+      "hook": "ingress",
+      "args": [
+        {
+          "stage": "ingress",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "policy",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "cjk",
+                "pattern": "违禁词"
+              },
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "custom",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "word",
+                "pattern": "forbidden topic"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "***",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "body": {
+            "model": "gpt-4o-mini",
+            "stream": false,
+            "messages": [
+              {
+                "role": "user",
+                "content": "About the FORBIDDEN TOPIC"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "action": "reject",
+        "code": "content_guard.custom",
+        "message": "The request contains content that is not allowed",
+        "ruleId": "word",
+        "findings": [
+          {
+            "rule": "word",
+            "category": "custom",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "continue: clean text",
+      "hook": "ingress",
+      "args": [
+        {
+          "stage": "ingress",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "policy",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "cjk",
+                "pattern": "违禁词"
+              },
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "custom",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "word",
+                "pattern": "forbidden topic"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "***",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "body": {
+            "model": "gpt-4o-mini",
+            "stream": false,
+            "messages": [
+              {
+                "role": "user",
+                "content": "A normal question about the weather"
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "action": "continue"
+      }
+    },
+    {
+      "name": "mask: regex and keyword in multimodal text parts, log-only finding",
+      "hook": "ingress",
+      "args": [
+        {
+          "stage": "ingress",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "regex",
+                "action": "mask",
+                "category": "pii",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "id-number",
+                "pattern": "\\b[1-9]\\d{16}[0-9Xx]\\b"
+              },
+              {
+                "type": "keyword",
+                "action": "mask",
+                "category": "codename",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "falcon",
+                "pattern": "project falcon"
+              },
+              {
+                "type": "regex",
+                "action": "log",
+                "category": "support",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "watch",
+                "pattern": "(?i)REFUND"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "[x]",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "body": {
+            "model": "gpt-4o-mini",
+            "stream": false,
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "ID 11010519491231002X, Project ​Falcon? Refund please"
+                  },
+                  {
+                    "type": "image_url",
+                    "image_url": {
+                      "url": "[media:0]"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": "ＰＲＯＪＥＣＴ ＦＡＬＣＯＮ"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "action": "continue",
+        "effects": [
+          {
+            "type": "json.patch",
+            "ops": [
+              {
+                "op": "replace",
+                "path": "/messages/0/content/0/text",
+                "value": "ID [x], [x]? Refund please"
+              },
+              {
+                "op": "replace",
+                "path": "/messages/0/content/2/text",
+                "value": "[x]"
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "en": "Some text in the request was masked by the content policy",
+          "zh": "请求中的部分文本已按内容策略遮盖"
+        },
+        "findings": [
+          {
+            "rule": "id-number",
+            "category": "pii",
+            "count": 1
+          },
+          {
+            "rule": "falcon",
+            "category": "codename",
+            "count": 2
+          },
+          {
+            "rule": "watch",
+            "category": "support",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "mask: Claude system and Gemini parts",
+      "hook": "ingress",
+      "args": [
+        {
+          "stage": "ingress",
+          "format": "claude",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "regex",
+                "action": "mask",
+                "category": "pii",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "id-number",
+                "pattern": "\\b[1-9]\\d{16}[0-9Xx]\\b"
+              },
+              {
+                "type": "keyword",
+                "action": "mask",
+                "category": "codename",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "falcon",
+                "pattern": "project falcon"
+              },
+              {
+                "type": "regex",
+                "action": "log",
+                "category": "support",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "watch",
+                "pattern": "(?i)REFUND"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "[x]",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "body": {
+            "model": "claude-x",
+            "max_tokens": 8,
+            "system": "about project falcon",
+            "messages": [
+              {
+                "role": "user",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "project falcon"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "action": "continue",
+        "effects": [
+          {
+            "type": "json.patch",
+            "ops": [
+              {
+                "op": "replace",
+                "path": "/messages/0/content/0/text",
+                "value": "[x]"
+              },
+              {
+                "op": "replace",
+                "path": "/system",
+                "value": "about [x]"
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "en": "Some text in the request was masked by the content policy",
+          "zh": "请求中的部分文本已按内容策略遮盖"
+        },
+        "findings": [
+          {
+            "rule": "falcon",
+            "category": "codename",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "mask: Gemini contents",
+      "hook": "ingress",
+      "args": [
+        {
+          "stage": "ingress",
+          "format": "gemini",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "regex",
+                "action": "mask",
+                "category": "pii",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "id-number",
+                "pattern": "\\b[1-9]\\d{16}[0-9Xx]\\b"
+              },
+              {
+                "type": "keyword",
+                "action": "mask",
+                "category": "codename",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "falcon",
+                "pattern": "project falcon"
+              },
+              {
+                "type": "regex",
+                "action": "log",
+                "category": "support",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "watch",
+                "pattern": "(?i)REFUND"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "[x]",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "body": {
+            "contents": [
+              {
+                "role": "user",
+                "parts": [
+                  {
+                    "text": "project falcon"
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "action": "continue",
+        "effects": [
+          {
+            "type": "json.patch",
+            "ops": [
+              {
+                "op": "replace",
+                "path": "/contents/0/parts/0/text",
+                "value": "[x]"
+              }
+            ]
+          }
+        ],
+        "notice": {
+          "en": "Some text in the request was masked by the content policy",
+          "zh": "请求中的部分文本已按内容策略遮盖"
+        },
+        "findings": [
+          {
+            "rule": "falcon",
+            "category": "codename",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "reply: non-stream mask",
+      "hook": "reply",
+      "args": [
+        {
+          "stage": "reply",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "keyword",
+                "action": "mask",
+                "category": "codename",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "falcon",
+                "pattern": "falcon"
+              },
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "custom",
+                "scope": "reply",
+                "caseSensitive": false,
+                "id": "stop",
+                "pattern": "launch code"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "***",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "stream": false,
+          "outputs": [
+            {
+              "index": 0,
+              "text": "The Falcon and the fal​con",
+              "offset": 0,
+              "final": true
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "action": "continue",
+        "hold": 0,
+        "mask": [
+          {
+            "index": 0,
+            "start": 4,
+            "end": 10
+          },
+          {
+            "index": 0,
+            "start": 19,
+            "end": 26
+          }
+        ],
+        "notice": {
+          "en": "Some text in the answer was masked by the content policy",
+          "zh": "回答中的部分文本已按内容策略遮盖"
+        },
+        "findings": [
+          {
+            "rule": "falcon",
+            "category": "codename",
+            "count": 2
+          }
+        ]
+      }
+    },
+    {
+      "name": "reply: stream holds text for a split keyword",
+      "hook": "reply",
+      "args": [
+        {
+          "stage": "reply",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "keyword",
+                "action": "mask",
+                "category": "codename",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "falcon",
+                "pattern": "falcon"
+              },
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "custom",
+                "scope": "reply",
+                "caseSensitive": false,
+                "id": "stop",
+                "pattern": "launch code"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "***",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "stream": true,
+          "outputs": [
+            {
+              "index": 0,
+              "text": "Our project fal",
+              "offset": 0,
+              "final": false
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "action": "continue",
+        "hold": 44
+      }
+    },
+    {
+      "name": "reply: stop",
+      "hook": "reply",
+      "args": [
+        {
+          "stage": "reply",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "keyword",
+                "action": "mask",
+                "category": "codename",
+                "scope": "both",
+                "caseSensitive": false,
+                "id": "falcon",
+                "pattern": "falcon"
+              },
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "custom",
+                "scope": "reply",
+                "caseSensitive": false,
+                "id": "stop",
+                "pattern": "launch code"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": true,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "***",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "stream": true,
+          "outputs": [
+            {
+              "index": 0,
+              "text": "here is the launch code",
+              "offset": 10,
+              "final": false
+            }
+          ]
+        }
+      ],
+      "expected": {
+        "action": "stop",
+        "code": "content_guard.custom",
+        "message": "The answer was stopped by the content policy",
+        "findings": [
+          {
+            "rule": "stop",
+            "category": "custom",
+            "count": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "reply: pass when replies are not checked",
+      "hook": "reply",
+      "args": [
+        {
+          "stage": "reply",
+          "format": "openai",
+          "path": "/v1/chat/completions",
+          "model": "gpt-4o-mini",
+          "attempt": 0,
+          "instance": {
+            "id": "fixture",
+            "name": "fixture"
+          },
+          "config": {
+            "blockCategory": "blocked",
+            "maskCategory": "masked",
+            "logCategory": "flagged",
+            "keywordsCaseSensitive": false,
+            "rules": [
+              {
+                "type": "keyword",
+                "action": "block",
+                "category": "custom",
+                "scope": "both",
+                "caseSensitive": false,
+                "pattern": "x"
+              }
+            ],
+            "disabledCategories": [],
+            "checkPrompts": true,
+            "promptScope": "all",
+            "checkAttachments": false,
+            "checkReplies": false,
+            "normalize": true,
+            "blockMessage": "",
+            "replyMessage": "",
+            "maskText": "***",
+            "streamHold": 0,
+            "maxScanChars": 1000000,
+            "oversize": "scan_head"
+          }
+        },
+        {
+          "stream": true,
+          "outputs": []
+        }
+      ],
+      "expected": {
+        "action": "pass"
+      }
+    },
+    {
+      "name": "validateConfig: sound rules",
+      "hook": "validateConfig",
+      "args": [
+        {
+          "blockCategory": "blocked",
+          "maskCategory": "masked",
+          "logCategory": "flagged",
+          "keywordsCaseSensitive": false,
+          "rules": [
+            {
+              "type": "regex",
+              "action": "mask",
+              "category": "pii",
+              "scope": "both",
+              "caseSensitive": false,
+              "id": "id-number",
+              "pattern": "\\b[1-9]\\d{16}[0-9Xx]\\b"
+            },
+            {
+              "type": "keyword",
+              "action": "mask",
+              "category": "codename",
+              "scope": "both",
+              "caseSensitive": false,
+              "id": "falcon",
+              "pattern": "project falcon"
+            },
+            {
+              "type": "regex",
+              "action": "log",
+              "category": "support",
+              "scope": "both",
+              "caseSensitive": false,
+              "id": "watch",
+              "pattern": "(?i)REFUND"
+            }
+          ],
+          "disabledCategories": [],
+          "checkPrompts": true,
+          "promptScope": "all",
+          "checkAttachments": false,
+          "checkReplies": true,
+          "normalize": true,
+          "blockMessage": "",
+          "replyMessage": "",
+          "maskText": "[x]",
+          "streamHold": 0,
+          "maxScanChars": 1000000,
+          "oversize": "scan_head"
+        }
+      ],
+      "expected": null
+    },
+    {
+      "name": "validateConfig: refuses nested repetition",
+      "hook": "validateConfig",
+      "args": [
+        {
+          "blockCategory": "blocked",
+          "maskCategory": "masked",
+          "logCategory": "flagged",
+          "keywordsCaseSensitive": false,
+          "rules": [
+            {
+              "type": "regex",
+              "action": "block",
+              "category": "custom",
+              "scope": "both",
+              "caseSensitive": false,
+              "id": "slow",
+              "pattern": "(a+)+$"
+            }
+          ],
+          "disabledCategories": [],
+          "checkPrompts": true,
+          "promptScope": "all",
+          "checkAttachments": false,
+          "checkReplies": true,
+          "normalize": true,
+          "blockMessage": "",
+          "replyMessage": "",
+          "maskText": "***",
+          "streamHold": 0,
+          "maxScanChars": 1000000,
+          "oversize": "scan_head"
+        }
+      ],
+      "expectedError": "Rule \"slow\" uses a repeated group that holds a repetition, which can make matching slow"
+    },
+    {
+      "name": "validateConfig: refuses invalid expression",
+      "hook": "validateConfig",
+      "args": [
+        {
+          "blockCategory": "blocked",
+          "maskCategory": "masked",
+          "logCategory": "flagged",
+          "keywordsCaseSensitive": false,
+          "rules": [
+            {
+              "type": "regex",
+              "action": "block",
+              "category": "custom",
+              "scope": "both",
+              "caseSensitive": false,
+              "id": "bad",
+              "pattern": "("
+            }
+          ],
+          "disabledCategories": [],
+          "checkPrompts": true,
+          "promptScope": "all",
+          "checkAttachments": false,
+          "checkReplies": true,
+          "normalize": true,
+          "blockMessage": "",
+          "replyMessage": "",
+          "maskText": "***",
+          "streamHold": 0,
+          "maxScanChars": 1000000,
+          "oversize": "scan_head"
+        }
+      ],
+      "expectedError": "Rule \"bad\" has an invalid regular expression"
+    }
+  ]
+}
