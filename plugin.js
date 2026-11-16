@@ -6,7 +6,7 @@ export const meta = {
     "en": "Blocks, masks or logs prompts and replies that match administrator keyword lists and regular expressions, by category",
     "zh": "按分类拦截、遮盖或记录命中管理员关键词列表与正则表达式的请求和回复"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": { "name": "ByAiden", "url": "https://github.com/ByAiden" },
   "website": "https://github.com/ByAiden/newapi-content-guard-plugin",
   "configSchema": {

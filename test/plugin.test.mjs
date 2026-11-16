@@ -97,14 +97,14 @@ test("meta is a plain JSON object literal equal to the evaluated meta", () => {
 test("meta identifies the plugin for the community market", () => {
   assert.match(meta.key, /^[a-z0-9-]+_content_guard$/);
   assert.ok(meta.key.length <= 30);
-  assert.equal(meta.version, "1.0.0");
+  assert.equal(meta.version, "1.0.1");
   assert.equal(meta.apiVersion, 1);
   assert.equal(meta.optional, undefined, "fails closed: a broken instance stops the request");
   for (const field of ["routes", "protocols", "relay", "channelTypes", "models"]) assert.equal(meta[field], undefined);
   assert.ok(meta.samples.length <= 8);
   const changelog = readFileSync(new URL("../CHANGELOG.md", import.meta.url), "utf8");
   assert.match(changelog, new RegExp('plugin: "?' + meta.key + '"?\n'));
-  assert.match(changelog, /version: "?1\.0\.0"?\n/);
+  assert.match(changelog, new RegExp('version: "?' + meta.version.replaceAll(".", "\\.") + '"?\\n'));
 });
 
 test("schema titles exist in both languages and defaults are valid", () => {
